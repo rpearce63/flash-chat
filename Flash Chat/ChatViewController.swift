@@ -20,10 +20,12 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet var messageTextfield: UITextField!
     @IBOutlet var messageTableView: UITableView!
     
-    
+    var keyboardHeight : CGFloat = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
         //TODO: Set yourself as the delegate and datasource here:
         messageTableView.delegate = self
@@ -83,26 +85,29 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     ///////////////////////////////////////////
     
     //MARK:- TextField Delegate Methods
-    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            UIView.animate(withDuration: 0.2) {
+                self.heightConstraint.constant +=  keyboardSize.height
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
     
 
     
     //TODO: Declare textFieldDidBeginEditing here:
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        
-        
-        UIView.animate(withDuration: 0.2) {
-            self.heightConstraint.constant =  318
-            self.view.layoutIfNeeded()
-        }
-    }
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        print("begin editing")
+//
+//    }
     
     
     
     //TODO: Declare textFieldDidEndEditing here:
     func textFieldDidEndEditing(_ textField: UITextField) {
-        UIView.animate(withDuration: 0.3) {
-            self.heightConstraint.constant =  50
+        UIView.animate(withDuration: 0.2) {
+            self.heightConstraint.constant = 50
             self.view.layoutIfNeeded()
         }
     }
@@ -118,7 +123,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     
     @IBAction func sendPressed(_ sender: AnyObject) {
-        
+        if messageTextfield.text == "" { return }
         messageTextfield.endEditing(true)
         //TODO: Send the message to Firebase and save it in our database
         
@@ -134,7 +139,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
             if error != nil {
                 print(error!)
             } else {
-                print("Message saved successfully!")
+                //print("Message saved successfully!")
                 self.messageTextfield.isEnabled = true
                 self.sendButton.isEnabled = true
                 self.messageTextfield.text = ""
