@@ -11,5 +11,8 @@ class Message {
     var messageBody: String = ""
     
     
-    
+    init(sender: String, messageBody: String) {
+        self.sender = sender
+        self.messageBody = messageBody
+    }
 }
